@@ -563,12 +563,21 @@ def exec_file(filename, globals_=None, locals_=None):
 
 def find_step_library(lib_names):
     """Return a list of step paths of the step modules with names form lib_names list"""
+    def fast_scandir(dirname):
+        subfolders= [f.path for f in os.scandir(dirname) if f.is_dir()]
+        for dirname in list(subfolders):
+            subfolders.extend(fast_scandir(dirname))
+        return subfolders
+
     step_lib_out = []
     for lib_name in lib_names:
         if (spec := importlib.util.find_spec(lib_name)) is not None:
             module = importlib.util.module_from_spec(spec)
-            for path in module.__path__:
-                step_lib_out.append(path)
+            for dir in module.__path__:
+                step_lib_out.append(dir)
+                subfolders = fast_scandir(dir)
+                step_lib_out += subfolders
+         
     return step_lib_out
 
 
