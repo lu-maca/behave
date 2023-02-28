@@ -20,7 +20,7 @@ from behave.exception import ConfigError
 from behave.formatter._registry import make_formatters
 from behave.runner_util import \
     collect_feature_locations, parse_features, \
-    exec_file, load_step_modules, PathManager
+    exec_file, load_step_modules, find_step_library, PathManager
 from behave.step_registry import registry as the_step_registry
 from enum import Enum
 
@@ -879,8 +879,8 @@ class Runner(ModelRunner):
             self.hooks["before_all"] = self.before_all_default_hook
 
     def load_step_definitions(self, extra_step_paths=None):
-        if extra_step_paths is None:
-            extra_step_paths = []
+        if self.config.step_lib:
+            extra_step_paths = find_step_library(self.config.step_lib)
         # -- Allow steps to import other stuff from the steps dir
         # NOTE: Default matcher can be overridden in "environment.py" hook.
         steps_dir = os.path.join(self.base_dir, self.config.steps_dir)

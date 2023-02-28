@@ -384,6 +384,9 @@ options = [
 
     (("--version",),
      dict(action="store_true", help="Show version.")),
+
+    (("--step-lib",),
+     dict(action="append", help="Add steps in the library step.")),
 ]
 
 # -- OPTIONS: With raw value access semantics in configuration file.
@@ -647,7 +650,8 @@ class Configuration(object):
         # -- SPECIAL:
         default_format="pretty",    # -- Used when no formatters are configured.
         default_tags="",            # -- Used when no tags are defined.
-        scenario_outline_annotation_schema=u"{name} -- @{row.id} {examples.name}"
+        scenario_outline_annotation_schema=u"{name} -- @{row.id} {examples.name}",
+        step_lib=[]
     )
     cmdline_only_options = set("userdata_defines")
 
@@ -794,6 +798,9 @@ class Configuration(object):
         self.setup_model()
         self.setup_userdata()
         self.setup_runner_aliases()
+
+        if args.step_lib:
+            self.step_lib = args.step_lib
 
         # -- FINALLY: Setup Reporters and Formatters
         # NOTE: Reporters and Formatters can now use userdata information.

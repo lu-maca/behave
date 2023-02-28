@@ -9,6 +9,7 @@ import glob
 import os.path
 import re
 import sys
+import importlib.util
 from six import string_types
 from behave import parser
 from behave.exception import \
@@ -558,6 +559,17 @@ def exec_file(filename, globals_=None, locals_=None):
 
         code = compile(f.read(), filename2, "exec", dont_inherit=True)
         exec(code, globals_, locals_)
+
+
+def find_step_library(lib_names):
+    """Return a list of step paths of the step modules with names form lib_names list"""
+    step_lib_out = []
+    for lib_name in lib_names:
+        if (spec := importlib.util.find_spec(lib_name)) is not None:
+            module = importlib.util.module_from_spec(spec)
+            for path in module.__path__:
+                step_lib_out.append(path)
+    return step_lib_out
 
 
 def load_step_modules(step_paths):
